@@ -9,10 +9,30 @@ metadata:
     # ADD THIS LINE ABOVE
     nginx.ingress.kubernetes.io/rewrite-target: /$1
     # UPDATE THIS LINE ABOVE
-    nginx.ingress.kubernetes.io/ssl-redirect: 'false'
+    nginx.ingress.kubernetes.io/ssl-redirect: 'true'
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
 spec:
+  tls:
+    - hosts:
+        - nab-site.com
+        - www.nab-site.com
+      secretName: nab-site-com
   rules:
-    - http:
+    - host: nab-site.com
+      http:
+        paths:
+          - path: /?(.*)
+          # UPDATE THIS LINE ABOVE
+            backend:
+              serviceName: client-cluster-ip-service
+              servicePort: 3000
+          - path: /api/?(.*)
+          # UPDATE THIS LINE ABOVE
+            backend:
+              serviceName: server-cluster-ip-service
+              servicePort: 5000
+    - host: www.nab-site.com
+      http:
         paths:
           - path: /?(.*)
           # UPDATE THIS LINE ABOVE
